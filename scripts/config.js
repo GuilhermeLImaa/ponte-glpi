@@ -6,7 +6,9 @@
 // preenchido com o endereço wss:// real ao publicar o site. Em produção não há
 // parâmetro para trocar o relay: um link malicioso poderia desviar os dados.
 
-export const PRODUCTION_RELAY_URL = "";
+// Túnel rápido da Cloudflare: o endereço muda quando o túnel é reiniciado.
+// Ao trocar, atualize também o connect-src do index.html.
+export const PRODUCTION_RELAY_URL = "wss://amy-gel-liked-pleased.trycloudflare.com/client";
 const DEV_RELAY_PORT = 8765;
 
 export function relayUrl() {

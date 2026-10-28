@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="referrer" content="no-referrer">
   <meta name="color-scheme" content="dark">
-  <!-- Em produção, restrinja connect-src ao endereço wss:// do relay. -->
+  <!-- connect-src: só o relay publicado (igual a PRODUCTION_RELAY_URL) e o relay local de desenvolvimento. -->
   <meta http-equiv="Content-Security-Policy"
-        content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self' ws: wss:; base-uri 'none'; form-action 'none'">
+        content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src wss://amy-gel-liked-pleased.trycloudflare.com ws://127.0.0.1:* ws://localhost:*; base-uri 'none'; form-action 'none'">
   <title>Ponte GLPI</title>
   <link rel="stylesheet" href="styles/app.css">
   <script type="module" src="scripts/app.js"></script>
