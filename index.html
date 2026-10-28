@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <meta name="color-scheme" content="dark">
+  <!-- Em produção, restrinja connect-src ao endereço wss:// do relay. -->
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self' ws: wss:; base-uri 'none'; form-action 'none'">
+  <title>Ponte GLPI</title>
+  <link rel="stylesheet" href="styles/app.css">
+  <script type="module" src="scripts/app.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <h1>PONTE GLPI</h1>
+    <div class="chips">
+      <span class="chip">
+        <span class="chip-label">🌐 Serviço:</span>
+        <span id="link-status" class="chip-value" role="status" aria-live="polite">Desconectado</span>
+      </span>
+    </div>
+  </header>
+
+  <main>
+    <div id="notice" class="notice" role="alert" hidden></div>
+
+    <!-- Tela 1: conexão -->
+    <section id="screen-connect" class="card" aria-labelledby="connect-title">
+      <div class="card-head">
+        <h2 id="connect-title">🔑 Conectar à Estação</h2>
+        <span class="pill">Pendente</span>
+      </div>
+      <p class="muted">Digite o ID de 8 dígitos exibido no aplicativo da sala de TI.</p>
+      <form id="connect-form" novalidate>
+        <label for="code-input">ID da estação</label>
+        <input id="code-input" name="code" type="text" inputmode="numeric" autocomplete="off"
+               autocapitalize="off" spellcheck="false" maxlength="11" placeholder="00 00 00 00"
+               aria-describedby="code-error" required>
+        <p id="code-error" class="field-error" aria-live="polite"></p>
+        <button id="connect-button" type="submit" class="primary">Solicitar Conexão</button>
+      </form>
+    </section>
+
+    <!-- Tela 2: aguardando aprovação -->
+    <section id="screen-waiting" class="card" aria-labelledby="waiting-title" hidden>
+      <div class="card-head">
+        <h2 id="waiting-title">⏳ Aguardando Aprovação</h2>
+        <span class="pill" data-tone="warn">Aguardando</span>
+      </div>
+      <p class="muted">Confirme que o código abaixo aparece na janela de aprovação do computador.</p>
+      <p class="verification" aria-label="Código de verificação"><span id="verification-code"></span></p>
+      <p id="waiting-stage" class="stage" role="status" aria-live="polite"></p>
+      <p id="waiting-countdown" class="muted center" aria-live="off"></p>
+      <button id="cancel-pairing" type="button" class="secondary">Cancelar</button>
+    </section>
+
+    <!-- Tela 3: sessão ativa -->
+    <section id="screen-session" class="stack" aria-labelledby="session-title" hidden>
+      <div class="card">
+        <div class="card-head">
+          <h2 id="session-title">📱 Sessão do Dispositivo</h2>
+          <span class="pill" data-tone="ok">Conectado</span>
+        </div>
+        <div class="progress-row">
+          <span class="progress-label">Tempo restante:</span>
+          <progress id="session-progress" max="43200" value="0" aria-labelledby="session-countdown"></progress>
+        </div>
+        <p id="session-countdown" class="muted"></p>
+        <p id="station-status" class="station-status" role="status" aria-live="polite"></p>
+        <button id="disconnect-button" type="button" class="secondary">⛔ Desconectar</button>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h2>📋 Encerrar Chamado</h2>
+        </div>
+        <p class="muted">A estação executa uma solicitação por vez no GLPI e informa o resultado aqui.</p>
+        <form id="ticket-form" novalidate>
+          <label for="ticket-input">Número do chamado</label>
+          <input id="ticket-input" name="ticket" type="text" inputmode="numeric" autocomplete="off"
+                 maxlength="10" aria-describedby="ticket-error" required>
+          <p id="ticket-error" class="field-error" aria-live="polite"></p>
+
+          <label for="solution-input">Descrição da solução</label>
+          <textarea id="solution-input" name="solution" rows="6" aria-describedby="solution-help solution-error"
+                    required></textarea>
+          <p id="solution-help" class="muted"><span id="solution-count">0</span> / <span id="solution-max"></span> caracteres</p>
+          <p id="solution-error" class="field-error" aria-live="polite"></p>
+
+          <button id="submit-button" type="submit" class="primary">Enviar para a Estação</button>
+        </form>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h2>Status de Execução</h2>
+        </div>
+        <div class="log">
+          <p id="requests-empty" class="log-empty">Aguardando envio de solicitações…</p>
+          <ul id="requests-list" class="requests" aria-live="polite"></ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tela 4: sessão encerrada -->
+    <section id="screen-ended" class="card" aria-labelledby="ended-title" hidden>
+      <div class="card-head">
+        <h2 id="ended-title">Sessão Encerrada</h2>
+        <span class="pill" data-tone="error">Encerrada</span>
+      </div>
+      <p id="ended-reason"></p>
+      <button id="restart-button" type="button" class="primary">Nova Conexão</button>
+    </section>
+  </main>
+
+  <noscript><p class="notice">Este site precisa de JavaScript habilitado.</p></noscript>
+</body>
+</html>

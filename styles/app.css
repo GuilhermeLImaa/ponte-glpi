@@ -1,0 +1,284 @@
+/* Tema baseado no modelo de UI fornecido.
+   As cores espelham desktop_app/ui/theme.py (PALETTE). */
+
+:root {
+  color-scheme: dark;
+  --bg: #1b1b1b;
+  --surface: #252525;
+  --surface-alt: #2e2e2e;
+  --border: #3a3a3a;
+  --input-bg: #161616;
+  --log-bg: #121212;
+  --text: #e6e6e6;
+  --muted: #9a9a9a;
+  --log-text: #8fb4dc;
+  --accent: #1f78d1;
+  --accent-hover: #2b86e0;
+  --accent-text: #4ea1f3;
+  --warn: #f0a43a;
+  --ok: #3fb950;
+  --error: #f2554d;
+  --radius: 6px;
+  --mono: Consolas, "Cascadia Mono", "SFMono-Regular", Menlo, "Courier New", monospace;
+}
+
+* { box-sizing: border-box; }
+
+/* Garante que telas ocultas continuem ocultas mesmo com display definido. */
+[hidden] { display: none !important; }
+
+html { background: var(--bg); }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 16px/1.5 "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+}
+
+/* ---------------------------------------------------------------- cabeçalho */
+
+.topbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+}
+
+.topbar h1 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--surface);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+.chip-value { color: var(--accent-text); }
+.chip-value[data-tone="ok"] { color: var(--ok); }
+.chip-value[data-tone="warn"] { color: var(--warn); }
+.chip-value[data-tone="error"] { color: var(--error); }
+
+/* ------------------------------------------------------------------ cartões */
+
+main {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+.stack { display: grid; gap: 16px; }
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+}
+
+.card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+h2 { margin: 0; font-size: 1.05rem; font-weight: 700; }
+
+.pill {
+  flex-shrink: 0;
+  padding: 3px 10px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--surface-alt);
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.pill[data-tone="ok"] { color: var(--ok); border-color: var(--ok); }
+.pill[data-tone="warn"] { color: var(--warn); border-color: var(--warn); }
+.pill[data-tone="error"] { color: var(--error); border-color: var(--error); }
+.pill[data-tone="info"] { color: var(--accent-text); border-color: var(--accent); }
+
+.muted { color: var(--muted); font-size: 0.875rem; margin: 6px 0; }
+.center { text-align: center; }
+
+/* ------------------------------------------------------------------- campos */
+
+label { display: block; margin-top: 14px; font-weight: 600; font-size: 0.9rem; }
+
+input, textarea {
+  width: 100%;
+  margin-top: 6px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--input-bg);
+  color: var(--text);
+  font: inherit;
+}
+
+input { font-family: var(--mono); }
+
+input::placeholder, textarea::placeholder { color: #5f6b78; }
+
+#code-input {
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-align: center;
+  color: var(--accent-text);
+  font-variant-numeric: tabular-nums;
+}
+
+textarea { resize: vertical; min-height: 130px; }
+
+input:focus-visible, textarea:focus-visible, button:focus-visible {
+  outline: 2px solid var(--accent-text);
+  outline-offset: 2px;
+}
+
+.field-error { min-height: 1.25em; margin: 4px 0 0; color: var(--error); font-size: 0.85rem; }
+
+/* ------------------------------------------------------------------- botões */
+
+button {
+  display: block;
+  width: 100%;
+  margin-top: 16px;
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--surface-alt);
+  color: var(--text);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+button.primary { background: var(--accent); border-color: var(--accent); color: #ffffff; }
+button.primary:hover { background: var(--accent-hover); }
+button.secondary { background: var(--input-bg); border-color: var(--accent); color: var(--accent-text); }
+button.secondary:hover { background: #1a2633; }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ------------------------------------------------------------------ avisos */
+
+.notice {
+  margin: 0 0 16px;
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--warn);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+.notice[data-kind="error"] { border-left-color: var(--error); }
+.notice[data-kind="ok"] { border-left-color: var(--ok); }
+
+/* ---------------------------------------------------- código de verificação */
+
+.verification {
+  margin: 16px 0 8px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--input-bg);
+  color: var(--accent-text);
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 2.5rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+}
+
+.stage { margin: 8px 0 0; text-align: center; font-weight: 600; color: var(--accent-text); }
+.stage:empty { display: none; }
+.stage[data-tone="warn"] { color: var(--warn); }
+
+/* ------------------------------------------------------------------ sessão */
+
+.progress-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+}
+.progress-label { font-weight: 600; font-size: 0.9rem; white-space: nowrap; }
+
+progress {
+  flex: 1;
+  min-width: 0;
+  height: 16px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--input-bg);
+  appearance: none;
+  -webkit-appearance: none;
+  overflow: hidden;
+}
+progress::-webkit-progress-bar { background: var(--input-bg); }
+progress::-webkit-progress-value { background: var(--accent); }
+progress::-moz-progress-bar { background: var(--accent); }
+
+.station-status { margin: 6px 0 0; font-size: 0.875rem; color: var(--warn); font-weight: 600; }
+.station-status:empty { display: none; }
+
+/* ------------------------------------------------- lista estilo terminal */
+
+.log {
+  min-height: 110px;
+  margin-top: 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--log-bg);
+  font-family: var(--mono);
+  font-size: 0.85rem;
+}
+.log-empty { margin: 0; color: #5f7a99; }
+
+.requests { list-style: none; margin: 0; padding: 0; }
+.requests li { padding: 8px 0; border-top: 1px solid #262626; }
+.requests li:first-child { border-top: none; padding-top: 0; }
+.requests .head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px 10px;
+}
+.requests .ticket { color: var(--text); font-weight: 700; }
+.requests .ticket::before { content: "> "; color: var(--log-text); }
+.requests .status {
+  padding: 2px 8px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--log-text);
+  font-family: "Segoe UI", system-ui, sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+.requests .detail { margin: 4px 0 0; color: var(--log-text); overflow-wrap: anywhere; }
+.requests [data-status="succeeded"] .status { color: var(--ok); border-color: var(--ok); }
+.requests [data-status="failed"] .status,
+.requests [data-status="rejected"] .status { color: var(--error); border-color: var(--error); }
+.requests [data-status="unknown"] .status { color: var(--warn); border-color: var(--warn); }
+.requests [data-status="running"] .status,
+.requests [data-status="approved"] .status { color: var(--accent-text); border-color: var(--accent); }
