@@ -124,7 +124,7 @@ h2 { margin: 0; font-size: 1.05rem; font-weight: 700; }
 
 label { display: block; margin-top: 14px; font-weight: 600; font-size: 0.9rem; }
 
-input, textarea {
+input, textarea, select {
   width: 100%;
   margin-top: 6px;
   padding: 10px 12px;
@@ -150,7 +150,10 @@ input::placeholder, textarea::placeholder { color: #5f6b78; }
 
 textarea { resize: vertical; min-height: 130px; }
 
-input:focus-visible, textarea:focus-visible, button:focus-visible {
+select { cursor: pointer; }
+select option { background: var(--input-bg); color: var(--text); }
+
+input:focus-visible, textarea:focus-visible, select:focus-visible, button:focus-visible {
   outline: 2px solid var(--accent-text);
   outline-offset: 2px;
 }

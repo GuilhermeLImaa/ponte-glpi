@@ -7,6 +7,7 @@
 // - Cada envio gera um request_id novo; não há reenvio automático.
 
 import { relayUrl } from "./config.js";
+import { SOLUTION_TEMPLATES } from "./templates.js";
 import {
   PAIRING_STAGE_MESSAGES,
   PAIR_REJECT_MESSAGES,
@@ -256,6 +257,7 @@ const handlers = {
       finishSubmit();
       $("ticket-input").value = "";
       $("solution-input").value = "";
+      $("template-select").value = "";
       updateCharCount();
     }
     renderRequests();
@@ -452,6 +454,22 @@ function onRestart() {
   $("code-input").focus();
 }
 
+// Como no GLPI: escolher um modelo coloca o texto dele na descrição.
+// Se já houver texto digitado, pergunta antes de substituir.
+function onTemplateChange(e) {
+  const template = SOLUTION_TEMPLATES.find((t) => t.id === e.target.value);
+  if (!template) return;
+  const field = $("solution-input");
+  const current = field.value.trim();
+  if (current && current !== template.text && !confirm("Substituir o texto da descrição pelo modelo?")) {
+    e.target.value = "";
+    return;
+  }
+  field.value = template.text;
+  updateCharCount();
+  field.focus();
+}
+
 // ------------------------------------------------------------------- inicialização
 
 function init() {
@@ -465,6 +483,13 @@ function init() {
     e.target.value = e.target.value.replace(/\D/g, "");
   });
   $("solution-input").addEventListener("input", updateCharCount);
+  for (const template of SOLUTION_TEMPLATES) {
+    const option = document.createElement("option");
+    option.value = template.id;
+    option.textContent = template.name;
+    $("template-select").append(option);
+  }
+  $("template-select").addEventListener("change", onTemplateChange);
   $("connect-form").addEventListener("submit", onConnectSubmit);
   $("cancel-pairing").addEventListener("click", onCancelPairing);
   $("disconnect-button").addEventListener("click", onDisconnect);
