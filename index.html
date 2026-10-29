@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="referrer" content="no-referrer">
   <meta name="color-scheme" content="dark">
-  <!-- connect-src: só o relay publicado (igual a PRODUCTION_RELAY_URL) e o relay local de desenvolvimento. -->
+  <!-- connect-src: relay.json do próprio site, o túnel rápido da Cloudflare (endereço lido do relay.json) e o relay local de desenvolvimento. -->
   <meta http-equiv="Content-Security-Policy"
-        content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src wss://amy-gel-liked-pleased.trycloudflare.com ws://127.0.0.1:* ws://localhost:*; base-uri 'none'; form-action 'none'">
+        content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self' wss://*.trycloudflare.com ws://127.0.0.1:* ws://localhost:*; base-uri 'none'; form-action 'none'">
   <title>Ponte GLPI</title>
   <link rel="stylesheet" href="styles/app.css">
   <script type="module" src="scripts/app.js"></script>
@@ -41,6 +41,25 @@
         <p id="code-error" class="field-error" aria-live="polite"></p>
         <button id="connect-button" type="submit" class="primary">Solicitar Conexão</button>
       </form>
+      <button id="recover-open" type="button" class="secondary">🔁 Reconectar com o código de 4 dígitos</button>
+    </section>
+
+    <!-- Tela 1b: reconectar com o código de verificação -->
+    <section id="screen-recover" class="card" aria-labelledby="recover-title" hidden>
+      <div class="card-head">
+        <h2 id="recover-title">🔁 Reconectar</h2>
+        <span class="pill">Pendente</span>
+      </div>
+      <p class="muted">Digite o código de 4 dígitos que apareceu quando a conexão foi aprovada.
+        Funciona só neste mesmo celular e navegador, enquanto a sessão estiver valendo na estação.</p>
+      <form id="recover-form" novalidate>
+        <label for="recover-input">Código de verificação</label>
+        <input id="recover-input" name="verification" type="text" inputmode="numeric" autocomplete="off"
+               maxlength="4" placeholder="0000" aria-describedby="recover-error" required>
+        <p id="recover-error" class="field-error" aria-live="polite"></p>
+        <button id="recover-button" type="submit" class="primary">Reconectar</button>
+      </form>
+      <button id="recover-back" type="button" class="secondary">Voltar</button>
     </section>
 
     <!-- Tela 2: aguardando aprovação -->
@@ -68,6 +87,8 @@
           <progress id="session-progress" max="43200" value="0" aria-labelledby="session-countdown"></progress>
         </div>
         <p id="session-countdown" class="muted"></p>
+        <p class="muted">Código para reconectar: <strong id="session-verification"></strong>
+          — anote. Se o site esquecer a conexão, use-o em "Reconectar".</p>
         <p id="station-status" class="station-status" role="status" aria-live="polite"></p>
         <button id="disconnect-button" type="button" class="secondary">⛔ Desconectar</button>
       </div>
@@ -116,6 +137,7 @@
       </div>
       <p id="ended-reason"></p>
       <button id="restart-button" type="button" class="primary">Nova Conexão</button>
+      <button id="recover-from-ended" type="button" class="secondary">🔁 Reconectar com o código de 4 dígitos</button>
     </section>
   </main>
 

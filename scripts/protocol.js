@@ -48,6 +48,14 @@ export const SESSION_END_MESSAGES = {
   station_disconnected: "A estação ficou desconectada e a sessão foi revogada.",
   invalid_or_expired: "A sessão não é mais válida. Faça uma nova conexão.",
   rate_limited: "Muitas tentativas. Aguarde alguns minutos.",
+  recovered_elsewhere: "Esta sessão foi retomada em outra aba ou aparelho com o código de verificação.",
+};
+
+export const RECOVER_FAIL_MESSAGES = {
+  invalid_code:
+    "Não deu para reconectar: código incorreto, sessão já encerrada ou outro celular/navegador. " +
+    "Depois de 3 erros a reconexão fica bloqueada; nesse caso, faça uma nova conexão com o ID.",
+  rate_limited: "Muitas tentativas. Aguarde alguns minutos antes de tentar novamente.",
 };
 
 export function normalizeCode(raw) {
