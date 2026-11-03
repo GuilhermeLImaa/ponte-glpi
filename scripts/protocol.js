@@ -15,12 +15,37 @@ export const STATUS_LABELS = {
   pending: "Aguardando a estação",
   approved: "Aprovado na estação",
   running: "Executando no GLPI",
-  succeeded: "Chamado encerrado e verificado",
+  succeeded: "Concluído e verificado",
   failed: "Falha conhecida",
   unknown: "Resultado inconclusivo — verificar manualmente no GLPI",
   cancelled: "Cancelado",
   rejected: "Não enviado",
 };
+
+// Tipos de solicitação (campo `action` de ticket.submit).
+export const ACTIONS = {
+  resolve: {
+    tag: "Solução",
+    succeeded: "Solucionado e verificado",
+    help: "Registra a solução no GLPI. A estação confere se o chamado saiu da lista de não solucionados.",
+    templateLabel: "Modelo de solução",
+    textLabel: "Descrição da solução",
+    submit: "Registrar solução",
+  },
+  followup: {
+    tag: "Acompanhamento",
+    succeeded: "Acompanhamento registrado e verificado",
+    help: "Adiciona um acompanhamento ao chamado, sem encerrá-lo. Opcionalmente, deixa o chamado pendente.",
+    templateLabel: "Modelo de texto",
+    textLabel: "Acompanhamento",
+    submit: "Adicionar acompanhamento",
+  },
+};
+
+export function statusLabel(status, action) {
+  if (status === "succeeded" && ACTIONS[action]) return ACTIONS[action].succeeded;
+  return STATUS_LABELS[status] || status;
+}
 
 export const TERMINAL = new Set(["succeeded", "failed", "unknown", "cancelled", "rejected"]);
 
@@ -85,13 +110,13 @@ export function validateSolution(raw) {
   const value = String(raw).replace(/\r\n?/g, "\n").trim();
   const length = charCount(value);
   if (length < SOLUTION_MIN_CHARS) {
-    return { error: `Descreva a solução com pelo menos ${SOLUTION_MIN_CHARS} caracteres.` };
+    return { error: `Escreva pelo menos ${SOLUTION_MIN_CHARS} caracteres.` };
   }
   if (length > SOLUTION_MAX_CHARS) {
-    return { error: `A descrição deve ter no máximo ${SOLUTION_MAX_CHARS} caracteres.` };
+    return { error: `O texto deve ter no máximo ${SOLUTION_MAX_CHARS} caracteres.` };
   }
   if (FORBIDDEN_CONTROL_RE.test(value)) {
-    return { error: "A descrição contém caracteres não permitidos." };
+    return { error: "O texto contém caracteres não permitidos." };
   }
   return { value };
 }

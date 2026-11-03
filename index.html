@@ -95,26 +95,45 @@
 
       <div class="card">
         <div class="card-head">
-          <h2>📋 Encerrar Chamado</h2>
+          <h2>📋 Nova Solicitação</h2>
         </div>
-        <p class="muted">A estação executa uma solicitação por vez no GLPI e informa o resultado aqui.</p>
+        <div class="segmented" role="radiogroup" aria-label="Tipo de solicitação">
+          <button id="mode-resolve" type="button" role="radio" aria-checked="true" data-mode="resolve">
+            ✅ Solucionar
+          </button>
+          <button id="mode-followup" type="button" role="radio" aria-checked="false" data-mode="followup">
+            💬 Acompanhamento
+          </button>
+        </div>
+        <p id="mode-help" class="muted"></p>
+        <p id="feature-hint" class="muted" hidden>Acompanhamento indisponível: a estação conectada precisa
+          ser atualizada para a versão nova do Ponte GLPI.</p>
         <form id="ticket-form" novalidate>
           <label for="ticket-input">Número do chamado</label>
           <input id="ticket-input" name="ticket" type="text" inputmode="numeric" autocomplete="off"
                  maxlength="10" aria-describedby="ticket-error" required>
           <p id="ticket-error" class="field-error" aria-live="polite"></p>
 
-          <label for="template-select">Modelo de solução</label>
+          <label for="template-select" id="template-label">Modelo de solução</label>
           <select id="template-select" name="template">
             <option value="">-----</option>
           </select>
-          <label for="solution-input">Descrição da solução</label>
+          <label for="solution-input" id="text-label">Descrição da solução</label>
           <textarea id="solution-input" name="solution" rows="6" aria-describedby="solution-help solution-error"
                     required></textarea>
           <p id="solution-help" class="muted"><span id="solution-count">0</span> / <span id="solution-max"></span> caracteres</p>
           <p id="solution-error" class="field-error" aria-live="polite"></p>
 
-          <button id="submit-button" type="submit" class="primary">Enviar para a Estação</button>
+          <label class="switch" id="pending-field" hidden>
+            <input id="pending-input" name="pending" type="checkbox" role="switch">
+            <span class="switch-track" aria-hidden="true"></span>
+            <span class="switch-text">
+              Colocar o chamado como pendente
+              <small>Se ele já estiver pendente no GLPI, continua pendente.</small>
+            </span>
+          </label>
+
+          <button id="submit-button" type="submit" class="primary">Registrar solução</button>
         </form>
       </div>
 

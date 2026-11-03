@@ -182,6 +182,88 @@ button.secondary { background: var(--input-bg); border-color: var(--accent); col
 button.secondary:hover { background: #1a2633; }
 button:disabled { opacity: 0.5; cursor: not-allowed; }
 
+/* ------------------------------------------- tipo de solicitação (abas) */
+
+.segmented {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  margin-top: 12px;
+  padding: 4px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--input-bg);
+}
+.segmented button {
+  margin: 0;
+  padding: 10px 4px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.88rem;
+  white-space: nowrap;
+}
+.segmented button:hover { color: var(--text); }
+.segmented button[aria-checked="true"] {
+  background: var(--surface-alt);
+  border-color: var(--accent);
+  color: var(--accent-text);
+}
+.segmented button[data-mode="followup"][aria-checked="true"] { border-color: var(--warn); color: var(--warn); }
+
+/* ------------------------------------------------- interruptor (pendente) */
+
+.switch {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--input-bg);
+  cursor: pointer;
+  font-weight: 600;
+}
+.switch input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  opacity: 0;
+}
+.switch-track {
+  position: relative;
+  flex-shrink: 0;
+  width: 46px;
+  height: 26px;
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  background: var(--surface-alt);
+  transition: background 0.15s, border-color 0.15s;
+}
+.switch-track::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--muted);
+  transition: transform 0.15s, background 0.15s;
+}
+.switch input:checked + .switch-track { background: var(--warn); border-color: var(--warn); }
+.switch input:checked + .switch-track::after { transform: translateX(20px); background: #ffffff; }
+.switch input:focus-visible + .switch-track { outline: 2px solid var(--accent-text); outline-offset: 2px; }
+.switch-text { display: grid; gap: 2px; }
+.switch-text small { color: var(--muted); font-weight: 400; font-size: 0.8rem; }
+.switch:has(input:checked) { border-color: var(--warn); }
+
+button.primary.followup { background: var(--warn); border-color: var(--warn); color: #1b1b1b; }
+button.primary.followup:hover { background: #f5b45a; }
+
 /* ------------------------------------------------------------------ avisos */
 
 .notice {
@@ -269,6 +351,8 @@ progress::-moz-progress-bar { background: var(--accent); }
 }
 .requests .ticket { color: var(--text); font-weight: 700; }
 .requests .ticket::before { content: "> "; color: var(--log-text); }
+.requests .kind { color: var(--muted); font-weight: 400; }
+.requests [data-action="followup"] .kind { color: var(--warn); }
 .requests .status {
   padding: 2px 8px;
   border: 1px solid var(--border);

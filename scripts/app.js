@@ -11,6 +11,7 @@
 import { relayUrl } from "./config.js";
 import { SOLUTION_TEMPLATES } from "./templates.js";
 import {
+  ACTIONS,
   PAIRING_STAGE_MESSAGES,
   PAIR_REJECT_MESSAGES,
   RECOVER_FAIL_MESSAGES,
@@ -23,6 +24,7 @@ import {
   formatCode,
   formatDuration,
   normalizeCode,
+  statusLabel,
   uuid4,
   validateSolution,
   validateTicketNumber,
@@ -46,7 +48,12 @@ const state = {
   expiresAt: null,
   waitingDeadline: null,
   stationOnline: true,
-  requests: new Map(), // request_id -> { ticket, status, message }
+  mode: "resolve", // resolve | followup (tipo da próxima solicitação)
+  // Recursos da estação informados pelo relay. Sem "followup" (relay ou
+  // estação antigos), a aba de acompanhamento fica desativada: uma versão
+  // antiga trataria o pedido como solução e encerraria o chamado.
+  features: [],
+  requests: new Map(), // request_id -> { ticket, action, pending, status, message }
   submitting: null,
   submitTimer: null,
   reconnectDelay: 1000,
@@ -260,6 +267,7 @@ const handlers = {
     state.requests.clear();
     saveToken(String(msg.session_token || ""));
     saveVerification(state.pairingVerification || null);
+    setFeatures(msg.features);
     startSession(msg.expires_in, true);
     notice("Conexão aprovada na estação.", "ok");
   },
@@ -271,6 +279,7 @@ const handlers = {
     state.requests.clear();
     saveToken(String(msg.session_token || ""));
     saveVerification(/^\d{4}$/.test(msg.verification_code || "") ? msg.verification_code : null);
+    setFeatures(msg.features);
     startSession(msg.expires_in, msg.station_online !== false);
     for (const item of Array.isArray(msg.requests) ? msg.requests : []) applyStatus(item);
     renderRequests();
@@ -282,6 +291,7 @@ const handlers = {
   },
 
   "session.resumed"(msg) {
+    setFeatures(msg.features);
     startSession(msg.expires_in, msg.station_online !== false);
     const known = new Set();
     for (const item of Array.isArray(msg.requests) ? msg.requests : []) {
@@ -319,6 +329,7 @@ const handlers = {
       $("ticket-input").value = "";
       $("solution-input").value = "";
       $("template-select").value = "";
+      $("pending-input").checked = false;
       updateCharCount();
     }
     renderRequests();
@@ -367,6 +378,8 @@ function applyStatus(msg) {
   req.status = msg.status;
   req.message = typeof msg.message === "string" ? msg.message : "";
   if (msg.ticket_number) req.ticket = String(msg.ticket_number);
+  if (msg.action in ACTIONS) req.action = msg.action;
+  if (typeof msg.pending === "boolean") req.pending = msg.pending;
   state.requests.set(msg.request_id, req);
 }
 
@@ -393,16 +406,22 @@ function renderRequests() {
   const entries = [...state.requests.entries()].reverse();
   $("requests-empty").hidden = entries.length > 0;
   for (const [, req] of entries) {
+    const action = req.action in ACTIONS ? req.action : "resolve";
     const li = document.createElement("li");
     li.dataset.status = req.status;
+    li.dataset.action = action;
     const head = document.createElement("div");
     head.className = "head";
     const ticket = document.createElement("span");
     ticket.className = "ticket";
-    ticket.textContent = `Chamado ${req.ticket}`;
+    ticket.textContent = `Chamado ${req.ticket} `;
+    const kind = document.createElement("span");
+    kind.className = "kind";
+    kind.textContent = `· ${ACTIONS[action].tag}${req.pending ? " + pendente" : ""}`;
+    ticket.append(kind);
     const status = document.createElement("span");
     status.className = "status";
-    status.textContent = STATUS_LABELS[req.status] || req.status;
+    status.textContent = statusLabel(req.status, action);
     head.append(ticket, status);
     li.append(head);
     if (req.message) {
@@ -494,10 +513,23 @@ function onTicketSubmit(event) {
   }
   notice("");
   const requestId = uuid4();
-  state.requests.set(requestId, { ticket: ticket.value, status: "sending", message: "" });
+  const action = state.mode === "followup" && !state.features.includes("followup") ? null : state.mode;
+  if (!action) {
+    notice("A estação não aceita acompanhamentos nesta versão.", "error");
+    return;
+  }
+  const pending = action === "followup" && $("pending-input").checked;
+  state.requests.set(requestId, { ticket: ticket.value, action, pending, status: "sending", message: "" });
   state.submitting = requestId;
   $("submit-button").disabled = true;
-  send({ type: "ticket.submit", request_id: requestId, ticket_number: ticket.value, solution: solution.value });
+  send({
+    type: "ticket.submit",
+    request_id: requestId,
+    ticket_number: ticket.value,
+    solution: solution.value,
+    action,
+    pending,
+  });
   state.submitTimer = setTimeout(() => {
     if (state.submitting === requestId) {
       const req = state.requests.get(requestId);
@@ -555,6 +587,33 @@ function onRestart() {
   $("code-input").focus();
 }
 
+// Solucionar × Acompanhamento: troca textos do formulário e mostra o
+// interruptor de pendente só no acompanhamento. O texto digitado é mantido.
+function setMode(mode) {
+  if (!(mode in ACTIONS)) return;
+  state.mode = mode;
+  const info = ACTIONS[mode];
+  for (const button of document.querySelectorAll(".segmented [data-mode]")) {
+    button.setAttribute("aria-checked", String(button.dataset.mode === mode));
+  }
+  $("mode-help").textContent = info.help;
+  $("template-label").textContent = info.templateLabel;
+  $("text-label").textContent = info.textLabel;
+  $("pending-field").hidden = mode !== "followup";
+  if (mode !== "followup") $("pending-input").checked = false;
+  const submit = $("submit-button");
+  submit.textContent = info.submit;
+  submit.classList.toggle("followup", mode === "followup");
+}
+
+function setFeatures(list) {
+  state.features = Array.isArray(list) ? list.filter((f) => typeof f === "string") : [];
+  const followup = state.features.includes("followup");
+  $("mode-followup").disabled = !followup;
+  $("feature-hint").hidden = followup;
+  if (!followup && state.mode === "followup") setMode("resolve");
+}
+
 // Como no GLPI: escolher um modelo coloca o texto dele na descrição.
 // Se já houver texto digitado, pergunta antes de substituir.
 function onTemplateChange(e) {
@@ -591,6 +650,11 @@ function init() {
     $("template-select").append(option);
   }
   $("template-select").addEventListener("change", onTemplateChange);
+  for (const button of document.querySelectorAll(".segmented [data-mode]")) {
+    button.addEventListener("click", () => setMode(button.dataset.mode));
+  }
+  setMode("resolve");
+  setFeatures([]);
   $("connect-form").addEventListener("submit", onConnectSubmit);
   $("cancel-pairing").addEventListener("click", onCancelPairing);
   $("disconnect-button").addEventListener("click", onDisconnect);
